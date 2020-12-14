@@ -33,7 +33,7 @@ SOFTWARE.
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "nrf_drv_twi.h"
+#include "nrfx_twi.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -132,7 +132,7 @@ typedef void (* bme280_twi_evt_handler_t)(bme280_twi_evt_t const * p_event,
 /**
  * @brief Function for forwarding a TWI event to the driver
  */
-void bme280_twi_evt_handler(nrf_drv_twi_evt_t const * p_event, void * p_context);
+void bme280_twi_evt_handler(nrfx_twi_evt_t const * p_event, void * p_context);
 
 /**
  * @brief Initialize the driver, without starting measurements
@@ -145,7 +145,7 @@ void bme280_twi_evt_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
  * @param[in] event_handler A handler for BME280 driver events (mandatory)
  * @param[in] p_context     Context passed to the event handler
  */
-void bme280_twi_init(nrf_drv_twi_t const *       p_twi,
+void bme280_twi_init(nrfx_twi_t const *       p_twi,
                      bme280_twi_config_t const * p_config,
                      bme280_twi_evt_handler_t    event_handler,
                      void *                      p_context);

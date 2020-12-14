@@ -47,7 +47,7 @@ static volatile bool    m_xfer_done = false;
 static volatile uint8_t m_rx_reg = 0;
 static int32_t  m_temp_raw;
 
-static const nrf_drv_twi_t *m_twi_ptr;
+static const nrfx_twi_t *m_twi_ptr;
 static bme280_twi_evt_handler_t m_handler;
 static uint8_t	m_addr;
 static void *   m_context;
@@ -84,7 +84,7 @@ static void _compensate_temp(int32_t adc_T, int32_t *temp)
 static void _write(uint8_t reg, uint8_t data) {
 	m_xfer_done = false;
 	uint8_t buf[2] = {reg, data};
-	ret_code_t err_code = nrf_drv_twi_tx(m_twi_ptr, m_addr, buf, sizeof(buf), false);
+	ret_code_t err_code = nrfx_twi_tx(m_twi_ptr, m_addr, buf, sizeof(buf), false);
 	APP_ERROR_CHECK(err_code);
 }
 
@@ -98,15 +98,15 @@ static void _write_blocking(uint8_t reg, uint8_t data) {
 static void _read(uint8_t reg, uint8_t *buf, int len) {
 	m_xfer_done = false;
 	m_rx_reg = reg;
-	nrf_drv_twi_xfer_desc_t desc = {
-		.type = NRF_DRV_TWI_XFER_TXRX,
+	nrfx_twi_xfer_desc_t desc = {
+		.type = NRFX_TWI_XFER_TXRX,
 		.address = m_addr,
 		.primary_length = sizeof(reg),
 		.secondary_length = sizeof(*buf) * len,
 		.p_primary_buf = &reg,
 		.p_secondary_buf = buf
 	};
-	ret_code_t err_code = nrf_drv_twi_xfer(m_twi_ptr, &desc, 0);
+	ret_code_t err_code = nrfx_twi_xfer(m_twi_ptr, &desc, 0);
 	APP_ERROR_CHECK(err_code);
 }
 
@@ -117,11 +117,11 @@ static void _read_blocking(uint8_t reg, uint8_t *buf, int len) {
 	} while (m_xfer_done == false);
 }
 
-void bme280_twi_evt_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
+void bme280_twi_evt_handler(nrfx_twi_evt_t const * p_event, void * p_context)
 {
 	switch (p_event->type) {
-		case NRF_DRV_TWI_EVT_DONE:
-			if (p_event->xfer_desc.type == NRF_DRV_TWI_XFER_TXRX) {
+		case NRFX_TWI_EVT_DONE:
+			if (p_event->xfer_desc.type == NRFX_TWI_XFER_TXRX) {
 				switch (m_rx_reg) {
 					case _REG_TEMP_MSB:
 						m_temp_raw = _merge_20_bit(m_buf);
@@ -137,7 +137,7 @@ void bme280_twi_evt_handler(nrf_drv_twi_evt_t const * p_event, void * p_context)
 	}
 }
 
-void bme280_twi_init(nrf_drv_twi_t const *       p_twi,
+void bme280_twi_init(nrfx_twi_t const *       p_twi,
                      bme280_twi_config_t const * p_config,
                      bme280_twi_evt_handler_t    event_handler,
                      void *                      p_context)
